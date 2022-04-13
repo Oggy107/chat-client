@@ -3,6 +3,7 @@ import axios from "axios";
 
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
+import LoadingButton from "@mui/lab/LoadingButton";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -39,7 +40,16 @@ import UserContext from "../../context/user";
 const theme = createTheme({});
 
 const Login = () => {
-    const user = React.useContext(UserContext);
+    const userContext = React.useContext(UserContext);
+    const [loading, setLoading] = React.useState<boolean>(false)
+
+    // React.useEffect(() => {
+    //     const localUser = localStorage.getItem('user');
+
+    //     if (localUser) {
+    //         userContext.login(JSON.parse(localUser));
+    //     }
+    // }, [])
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -54,10 +64,13 @@ const Login = () => {
         // TODO: refactor to send actual data
         axios.post(`${SERVER_URL}/login`).then((response) => {
             console.log(response.data)
-            user?.login({
+            userContext.login({
                 username: response.data.username,
                 token: response.data.token,
             })
+        }).catch((error) => {
+            setLoading(false)
+            console.log(error)
         })
     };
 
@@ -109,14 +122,16 @@ const Login = () => {
                             control={<Checkbox value="remember" color="primary" />}
                             label="Remember me"
                         />
-                        <Button
+                        <LoadingButton
                             type="submit"
+                            loading={loading}
                             fullWidth
+                            onAnimationEnd={() => setLoading(true)}
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
                             Sign In
-                        </Button>
+                        </LoadingButton>
                         <Grid container>
                             <Grid item xs>
                                 <Link href="#" variant="body2">

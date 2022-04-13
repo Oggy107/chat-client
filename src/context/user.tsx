@@ -3,7 +3,7 @@ import { Reducer, ReducerAction, ReducerState } from 'react'
 
 import {
     User,
-    UserContext as Context,
+    UserContextI,
     UserReducer,
     UserActionType,
 } from '../types/auth'
@@ -39,21 +39,39 @@ const userReducer: UserReducer = (state, action): User => {
 
 // type UserContext = UserContextI | null
 
-const UserContext = React.createContext<Context>(null)
+const initialState: UserContextI = {
+    user: localStorage.getItem('user') as User,
+    login: (payload: User) => {},
+    logout: () => {}
+}
+
+const UserContext = React.createContext<UserContextI>(initialState)
 
 const UserProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
     const [user, dispatch] = React.useReducer<UserReducer>(userReducer, null)
 
+    // React.useEffect(() => {
+    //     if (localUser) {
+    //         console.log("hey")
+    //         // dispatch({
+    //         //     type: UserActionType.LOGIN,
+    //         //     payload: JSON.parse(localUser)
+    //         // })
+    //         login(JSON.parse(localUser))
+    //     }
+    // }, [])
+
     const login = (payload: User) => {
         dispatch({ type: UserActionType.LOGIN, payload })
         localStorage.setItem('user', JSON.stringify(payload))
+        location.href = '/'
     }
 
     const logout = () => {
         dispatch({ type: UserActionType.LOGOUT, payload: null })
         localStorage.removeItem('user')
     }
-    
+
     return (
         <UserContext.Provider value={{ user, login, logout }}>
             {children}
