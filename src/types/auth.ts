@@ -1,8 +1,11 @@
 import { Reducer } from 'react'
 
 interface UserI {
-    username: string,
-    token: string
+    id: string;
+    username: string;
+    email: string;
+    hashedPassword: string;
+    token: string;
 }
 
 export type User = UserI | null
@@ -19,3 +22,9 @@ export enum UserActionType { 'LOGIN' , 'LOGOUT' }
 export type UserAction = { type: UserActionType, payload: User }
 
 export type UserReducer = Reducer<User, UserAction>
+
+// AUTH PAGE
+export enum AuthPageType { 'LOGIN', 'SIGNUP' }
+export interface AuthPageProps {
+    setPage: (page: AuthPageType) => void
+}

@@ -1,60 +1,39 @@
 import React from "react";
-import axios from "axios";
 
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import LoadingButton from "@mui/lab/LoadingButton";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-import { SERVER_URL } from "../../constants";
+import { AuthPageProps, AuthPageType } from "../../types/auth";
 import UserContext from "../../context/user";
-
-// function Copyright(props: any) {
-//   return (
-//     <Typography
-//       variant="body2"
-//       color="text.secondary"
-//       align="center"
-//       {...props}
-//     >
-//       {"Copyright © "}
-//       <Link color="inherit" href="https://mui.com/">
-//         Your Website
-//       </Link>{" "}
-//       {new Date().getFullYear()}
-//       {"."}
-//     </Typography>
-//   );
-// }
+import { postFormData } from "../../utils/service";
 
 const theme = createTheme({});
 
-const Login = () => {
+const Login = ({ setPage }: AuthPageProps): JSX.Element => {
     const userContext = React.useContext(UserContext);
     const [loading, setLoading] = React.useState<boolean>(false)
 
-    // React.useEffect(() => {
-    //     const localUser = localStorage.getItem('user');
-
-    //     if (localUser) {
-    //         userContext.login(JSON.parse(localUser));
-    //     }
-    // }, [])
-
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        const data = new FormData(event.currentTarget);
+        const formData = new FormData(event.currentTarget);
+
+        const data = {
+            email: formData.get("email") as string,
+            password: formData.get("password") as string
+        }
+
+        // formData.append('email', formData.get('email') as string);
+        // formData.append('password', formData.get('password') as string);
 
         // console.log({
         //     email: data.get("email"),
@@ -62,16 +41,23 @@ const Login = () => {
         // });
 
         // TODO: refactor to send actual data
-        axios.post(`${SERVER_URL}/login`).then((response) => {
-            console.log(response.data)
-            userContext.login({
-                username: response.data.username,
-                token: response.data.token,
-            })
-        }).catch((error) => {
-            setLoading(false)
-            console.log(error)
-        })
+
+        // try {
+        //     const respose = await axios({
+        //         method: "post",
+        //         url: `${SERVER_URL}/login`,
+        //         data: qs.stringify(data),
+        //         headers: { "content-Type": "application/x-www-form-urlencoded" },
+        //     })
+            
+        //     userContext.login(respose.data);
+        // } catch (error) {
+        //     setLoading(false)
+        //     console.log(error)
+        // }
+
+        const response = await postFormData('login', data)
+        // userContext.login(response);
     };
 
     return (
@@ -132,28 +118,22 @@ const Login = () => {
                         >
                             Sign In
                         </LoadingButton>
-                        <Grid container>
-                            <Grid item xs>
-                                <Link href="#" variant="body2">
-                                    Forgot password?
-                                </Link>
-                            </Grid>
-                            <Grid item>
-                                <Link href="#" variant="body2">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
-                            </Grid>
-                        </Grid>
+                        <Container>
+                            <Typography
+                                variant="body2"
+                                onClick={() => {setPage(AuthPageType.SIGNUP)}}
+                                textAlign="center"
+                                sx={{ cursor: "pointer", color: "primary.main" }}
+                            >
+                                {"Don't have an account? Sign Up"}
+                            </Typography>
+                        </Container>
                     </Box>
                 </Box>
                 {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
             </Container>
         </ThemeProvider>
-  );
+    );
 }
-
-// const Login = (): JSX.Element => {
-//   return <div></div>;
-// };
 
 export default Login;

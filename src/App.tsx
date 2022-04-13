@@ -7,7 +7,7 @@ import '@stream-io/stream-chat-css/dist/css/index.css'
 
 import { UserContextI } from './types/auth'
 import UserContext, { UserProvider } from './context/user'
-import Login from './pages/auth/Login'
+import Auth from './pages/auth/Auth'
 
 import { API_KEY } from './constants'
 
@@ -19,7 +19,7 @@ const App = () => {
     return (
         <UserProvider>
             {!userContext.user ?
-                <Login /> : 
+                <Auth /> : 
                 <AppWrapper userContext={userContext} />
             }
         </UserProvider>
@@ -37,17 +37,27 @@ const AppWrapper = ({
 
     React.useEffect(() => {
         const setupClient = async () => {
-            const token = userContext.user!!.token
-            const username = userContext.user!!.username
+            const {
+                username,
+                email,
+                hashedPassword,
+                id,
+                token
+            } = userContext.user!!
 
             try {
                 await client.connectUser({
-                    id: username
+                    name: username,
+                    id,
+                    hashedPassword,
+                    email,
                 }, token)
 
-                await client.channel('messaging', {
-                    members: [username, 'urmalveer']
-                }).create()
+                // await client.channel('messaging', {
+                //     members: [id, 'urmalveer']
+                // }).create()
+
+                client.getChannelById('messaging', 'test', {members: [id, 'urmalveer']})
 
                 setClientReady(true)
             } catch (error) {
