@@ -1,9 +1,9 @@
+import React from 'react'
+import { Container, Box, CssBaseline, CircularProgress } from '@mui/material'
 import { StreamChat } from 'stream-chat'
 import { Chat, Channel, ChannelList, Window, ChannelHeader, MessageList, MessageInput } from 'stream-chat-react'
 
 import '@stream-io/stream-chat-css/dist/css/index.css'
-
-import React from 'react'
 
 import { UserContextI } from './types/auth'
 import UserContext, { UserProvider } from './context/user'
@@ -60,7 +60,20 @@ const AppWrapper = ({
 
     if (!clientReady) {
         return (
-            <h1>loading...</h1>
+            <Container>
+                <CssBaseline />
+                <Box
+                    sx={{
+                        height: "100vh",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                >
+                    <CircularProgress />
+                </Box>
+            </Container>
         )
     }
 
