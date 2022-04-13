@@ -1,18 +1,17 @@
 import { StreamChat } from 'stream-chat'
-import { Chat } from 'stream-chat-react'
+import { Chat, Channel, ChannelList, Window, ChannelHeader, MessageList, MessageInput } from 'stream-chat-react'
+
+import '@stream-io/stream-chat-css/dist/css/index.css'
 
 import React from 'react'
 
+import { UserContextI } from './types/auth'
 import UserContext, { UserProvider } from './context/user'
 import Login from './pages/auth/Login'
 
 import { API_KEY } from './constants'
 
 const client = StreamChat.getInstance(API_KEY)
-
-// const token = localStorage.getItem('token')
-// console.log(token)
-// const localUser = localStorage.getItem('user')
 
 const App = () => {
     const userContext = React.useContext(UserContext)
@@ -21,11 +20,61 @@ const App = () => {
         <UserProvider>
             {!userContext.user ?
                 <Login /> : 
-                <Chat client={client}>
-                    <h1>hey there</h1>
-                </Chat>
+                <AppWrapper userContext={userContext} />
             }
         </UserProvider>
+    )
+}
+
+interface AppWrapperProps {
+    userContext: UserContextI
+}
+
+const AppWrapper = ({
+    userContext
+}: AppWrapperProps): JSX.Element => {
+    const [clientReady, setClientReady] = React.useState<boolean>(false)
+
+    React.useEffect(() => {
+        const setupClient = async () => {
+            const token = userContext.user!!.token
+            const username = userContext.user!!.username
+
+            try {
+                await client.connectUser({
+                    id: username
+                }, token)
+
+                await client.channel('messaging', {
+                    members: [username, 'urmalveer']
+                }).create()
+
+                setClientReady(true)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        
+        setupClient()
+    }, [])
+
+    if (!clientReady) {
+        return (
+            <h1>loading...</h1>
+        )
+    }
+
+    return (
+        <Chat client={client}>
+            <ChannelList />
+            <Channel>
+                <Window>
+                    <ChannelHeader />
+                    <MessageList />
+                    <MessageInput />
+                </Window>
+            </Channel>
+        </Chat>
     )
 }
 

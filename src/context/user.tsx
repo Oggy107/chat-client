@@ -40,7 +40,7 @@ const userReducer: UserReducer = (state, action): User => {
 // type UserContext = UserContextI | null
 
 const initialState: UserContextI = {
-    user: localStorage.getItem('user') as User,
+    user: localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!!) : null,
     login: (payload: User) => {},
     logout: () => {}
 }
@@ -64,6 +64,9 @@ const UserProvider = ({ children }: { children: React.ReactNode }): JSX.Element 
     const login = (payload: User) => {
         dispatch({ type: UserActionType.LOGIN, payload })
         localStorage.setItem('user', JSON.stringify(payload))
+
+
+
         location.href = '/'
     }
 
